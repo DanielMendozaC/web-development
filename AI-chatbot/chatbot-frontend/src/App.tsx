@@ -32,10 +32,20 @@ function App() {
         setLoading(true);
 
         try {
+            // Build full conversation history
+            const messages = [
+                { role: "system", content: "You are a helpful assistant." },
+                ...chatLog.map(msg => ({
+                    role: msg.type === 'user' ? 'user' : 'assistant',
+                    content: msg.text
+                })),
+                { role: "user", content: userInput }
+            ];
+        
             const response = await fetch('http://localhost:8000/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_message: userInput }),
+                body: JSON.stringify({ messages }),
             });
 
             if (!response.ok) {
@@ -61,6 +71,15 @@ function App() {
     return (
         <div className="App">
             <h1>AI Chatbot</h1>
+            <button 
+                onClick={() => {
+                    setChatLog([]);
+                    localStorage.removeItem('chatLog');
+                }}
+                style={{ marginBottom: '20px' }}
+            >
+                Clear Chat
+            </button>
             <div className="chat-window">
                 {chatLog.map((message, index) => (
                     <div key={index} className={`message ${message.type}`}>

@@ -35,7 +35,7 @@ app.add_middleware(
 # 3. Define the Request Data Structure
 # Pydantic model ensures the incoming data has the correct format
 class ChatInput(BaseModel):
-    user_message: str
+    messages: list
 
 # 4. Create API Endpoints
 @app.get("/")
@@ -49,10 +49,7 @@ async def chat_with_ai(input_data: ChatInput):
         # Forward the user's message to the OpenAI  API
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": input_data.user_message}
-            ],
+            messages= input_data.messages,
         )
         # Extract and return the AI's response
         bot_response = completion.choices[0].message.content
